@@ -1,0 +1,22 @@
+
+# virtual environment
+venv/
+.env/
+
+# ML artifacts / models
+wine_artifacts/
+models/
+artifacts/
+outputs/
+
+# datasets
+*.csv
+data/
+datasets/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
