@@ -11,6 +11,7 @@ def load_and_prepare_data():
     white["wine_type"] = "white"
 
     df = pd.concat([red, white], ignore_index=True)
+    df.drop_duplicates(inplace=True,ignore_index=True)
     df.columns = df.columns.str.strip()
 
     X = df.drop(columns=["quality"])
