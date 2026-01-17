@@ -1,8 +1,7 @@
 #PROBLEM STATEMENT
-Wine quality is generally evaluated by domain experts but that is very costly,inconsistent so, it is better to use machine learning algorithms.
-our goal is to predict wine quality.
-
-
+Wine quality is traditionally evaluated by domain experts, which is costly, time‑consuming, and often inconsistent. 
+This project builds a production‑ready machine learning system to predict wine quality using physicochemical properties, enabling scalable and reproducible quality assessment.
+The solution integrates SQL-based data ingestion, robust preprocessing, statistically sound evaluation, and Bayesian hyperparameter optimization to ensure reliable performance, even under severe class imbalance.
 
 #DATA_SET
 red_wine and white_wine two data sets
@@ -19,7 +18,6 @@ column space/features/dimensions
 10.sulphates:acts as antimicrobial and enhances flavor intensity.
 11.alcohol:alcohol percentage in wine.
 12.quality:target coulmn/output variable.
-
 
 #DEPENDENCIES
 numpy
@@ -117,3 +115,24 @@ WINE_QUALITY_PREDICTION/
  g)run_train.py:It is a entry point where the whole code is run through this file.
  h)setup.py:It creates src as package and can be used in other files and th whole project can downloaded.
  
+#IMPLEMENTATION AND DESIGN
+A)Data Ingestion & Cleaning
+Raw CSV data is loaded into an SQLite database.
+SQL queries are used for validation, consistency checks, and exploratory cleaning.
+Cleaned data is passed to Pandas‑based preprocessing pipelines.
+B)Modeling Strategy
+Treated as a multiclass classification problem
+Implemented a model factory to dynamically switch between models.
+C)Class Imbalance Handling
+Severe imbalance handled using class‑weighted loss functions
+Synthetic oversampling (SMOTE) intentionally avoided to prevent overfitting on extremely rare classes
+D)Hyperparameter Optimization
+Optuna (TPE sampler) used for Bayesian hyperparameter optimization
+Optimization performed inside cross‑validation loops to prevent data leakage
+D)Evaluation Methodology
+Stratified K‑Fold Cross‑Validation to preserve class distribution
+F1‑macro selected as the primary metric to ensure equal importance to rare and majority classes
+E)Artifacts & Reproducibility
+Trained model and label encoder are serialized using Joblib
+Cross‑validation results and configuration stored as JSON reports
+Fixed random seeds ensure reproducibility across runs
