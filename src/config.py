@@ -2,9 +2,9 @@ import os
 
 RANDOM_STATE = 42
 
-OUTER_SPLITS = 5
-INNER_SPLITS = 4
-N_TRIALS_INNER = 5
+OUTER_SPLITS = 2
+INNER_SPLITS = 2
+N_TRIALS_INNER =30
 
 BASE_PATH = "./wine_artifacts"
 os.makedirs(BASE_PATH, exist_ok=True)
