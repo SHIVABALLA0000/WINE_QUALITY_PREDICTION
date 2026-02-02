@@ -102,7 +102,7 @@ Clear distinction between:
 -  Medium-confidence warnings  
 -  Low-confidence rejections  
 
-## 📈 Monitoring & Drift Detection
+## Monitoring & Drift Detection
 
 - **Evidently AI** used for offline monitoring
 - Drift detection includes:
