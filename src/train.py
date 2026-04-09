@@ -25,11 +25,25 @@ from .model import (
 
 
 
+# src/train.py
+
+import numpy as np
+import optuna
+
+from sklearn.model_selection import StratifiedKFold
+from sklearn.utils.class_weight import compute_class_weight
+
+from .model import build_rf, build_xgb, build_et, build_stacking_model
+from .preprocess import build_preprocessor
+from .metrics import f1_macro
+from .config import *
+
+
 def train_with_nested_cv(X_dev, y_dev):
     """
     Nested CV on DEV set only.
     Base learners tuned independently.
-    Stacking evaluated in outer CV.
+    Stacking + XGB evaluated in outer CV.
     """
 
     num_cols = X_dev.select_dtypes(include=np.number).columns.tolist()
@@ -54,13 +68,15 @@ def train_with_nested_cv(X_dev, y_dev):
         random_state=RANDOM_STATE
     )
 
-    outer_scores = []
+    outer_scores_stack = []
+    outer_scores_xgb = []
 
     best_rf_params = None
     best_xgb_params = None
     best_et_params = None
 
     for fold, (tr_idx, va_idx) in enumerate(outer_cv.split(X_dev, y_dev), 1):
+
         X_tr, X_va = X_dev.iloc[tr_idx], X_dev.iloc[va_idx]
         y_tr, y_va = y_dev[tr_idx], y_dev[va_idx]
 
@@ -68,9 +84,9 @@ def train_with_nested_cv(X_dev, y_dev):
         X_tr_p = pre.fit_transform(X_tr)
         X_va_p = pre.transform(X_va)
 
-        # --------------------
-        # INNER CV — RF
-        # --------------------
+        # ========================
+        # RF TUNING
+        # ========================
         def rf_objective(trial):
             params = suggest_rf_params(trial)
             scores = []
@@ -87,9 +103,9 @@ def train_with_nested_cv(X_dev, y_dev):
         rf_study.optimize(rf_objective, n_trials=N_TRIALS_RF)
         best_rf_params = rf_study.best_params
 
-        # --------------------
-        # INNER CV — XGB
-        # --------------------
+        # ========================
+        # XGB TUNING
+        # ========================
         def xgb_objective(trial):
             params = suggest_xgb_params(trial)
             scores = []
@@ -106,9 +122,9 @@ def train_with_nested_cv(X_dev, y_dev):
         xgb_study.optimize(xgb_objective, n_trials=N_TRIALS_XGB)
         best_xgb_params = xgb_study.best_params
 
-        # --------------------
-        # INNER CV — ET
-        # --------------------
+        # ========================
+        # ET TUNING
+        # ========================
         def et_objective(trial):
             params = suggest_et_params(trial)
             scores = []
@@ -125,9 +141,9 @@ def train_with_nested_cv(X_dev, y_dev):
         et_study.optimize(et_objective, n_trials=N_TRIALS_RF)
         best_et_params = et_study.best_params
 
-        # --------------------
-        # OUTER CV — STACKING
-        # --------------------
+        # ========================
+        # OUTER — STACKING
+        # ========================
         stack = build_stacking_model(
             rf_params=best_rf_params,
             xgb_params=best_xgb_params,
@@ -137,14 +153,23 @@ def train_with_nested_cv(X_dev, y_dev):
         )
 
         stack.fit(X_tr_p, y_tr)
-        preds = stack.predict(X_va_p)
+        stack_preds = stack.predict(X_va_p)
+        stack_score = f1_macro(y_va, stack_preds)
+        outer_scores_stack.append(stack_score)
 
-        score = f1_macro(y_va, preds)
-        outer_scores.append(score)
+        # ========================
+        # OUTER — XGB BASELINE
+        # ========================
+        xgb_model = build_xgb(best_xgb_params, len(classes))
+        xgb_model.fit(X_tr_p, y_tr)
+        xgb_preds = xgb_model.predict(X_va_p)
+        xgb_score = f1_macro(y_va, xgb_preds)
+        outer_scores_xgb.append(xgb_score)
 
-        print(f"[Outer {fold}/{OUTER_CV_SPLITS}] F1-macro = {score:.4f}")
+        print(f"[Outer {fold}/{OUTER_CV_SPLITS}] Stack F1 = {stack_score:.4f}")
+        print(f"[Outer {fold}/{OUTER_CV_SPLITS}] XGB   F1 = {xgb_score:.4f}")
 
-    return outer_scores, {
+    return outer_scores_stack, outer_scores_xgb, {
         "rf": best_rf_params,
         "xgb": best_xgb_params,
         "et": best_et_params
