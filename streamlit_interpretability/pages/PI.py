@@ -44,5 +44,5 @@ st.markdown("""
 ### 🧠 How to interpret
 - Higher importance → feature strongly affects predictions
 - Near-zero importance → feature has little effect
-- If random/noise features appear high → ⚠️ investigate leakage
+
 """)
