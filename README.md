@@ -76,7 +76,7 @@ Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
 To ensure **rigorous and defensible model selection**, we implemented **statistical testing and uncertainty estimation**:
 
-### 🔹 1. Paired Model Comparison
+###  1. Paired Model Comparison
 - Paired t-test  
 - Wilcoxon signed-rank test  
 - Cohen’s d (effect size)  
@@ -85,7 +85,7 @@ To ensure **rigorous and defensible model selection**, we implemented **statisti
 
 ---
 
-### 🔹 2. Bootstrap Confidence Intervals
+###  2. Bootstrap Confidence Intervals
 - Resampling-based estimation of metric distribution  
 
 Provides:
@@ -96,7 +96,7 @@ Provides:
 
 ---
 
-### 🔹 3. Calibration Evaluation
+###  3. Calibration Evaluation
 - Brier Score  
 - Measures probability reliability  
 
