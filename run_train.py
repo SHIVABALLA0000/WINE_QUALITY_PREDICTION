@@ -1,4 +1,5 @@
 # run_train.py
+
 import json
 import joblib
 import numpy as np
@@ -10,9 +11,16 @@ from sklearn.utils.class_weight import compute_class_weight
 from src.data_utils import load_data
 from src.train import train_with_nested_cv
 from src.preprocess import build_preprocessor
-from src.model import build_stacking_model
+from src.model import build_stacking_model, build_xgb
 from src.metrics import f1_macro
 from src.config import *
+
+from src.stat_eval import (
+    compare_models_cv,
+    bootstrap_ci,
+    evaluate_calibration,
+    save_statistical_report
+)
 
 
 def main():
@@ -26,8 +34,15 @@ def main():
         random_state=RANDOM_STATE
     )
 
-    outer_scores, best_params = train_with_nested_cv(X_dev, y_dev)
+    # Nested CV
+    outer_scores_stack, outer_scores_xgb, best_params = train_with_nested_cv(X_dev, y_dev)
 
+    stat_cv_results = compare_models_cv(
+        outer_scores_stack,
+        outer_scores_xgb
+    )
+
+    # Preprocessing full dev set
     num_cols = X_dev.select_dtypes(include=np.number).columns.tolist()
     pre = build_preprocessor(num_cols)
 
@@ -42,6 +57,7 @@ def main():
     )
     class_weight_dict = dict(zip(classes, class_weights))
 
+    # Final stacking model
     final_model = build_stacking_model(
         rf_params=best_params["rf"],
         xgb_params=best_params["xgb"],
@@ -55,8 +71,29 @@ def main():
     test_preds = final_model.predict(X_test_p)
     test_f1 = f1_macro(y_test, test_preds)
 
-    print("\nFINAL TEST F1-macro:", round(test_f1, 4))
+    # Baseline XGB
+    baseline_xgb = build_xgb(best_params["xgb"], len(classes))
+    baseline_xgb.fit(X_dev_p, y_dev)
+    xgb_test_f1 = f1_macro(y_test, baseline_xgb.predict(X_test_p))
 
+    # Statistical evaluation
+    bootstrap_results = bootstrap_ci(final_model, X_test_p, y_test)
+    calibration_results = evaluate_calibration(final_model, X_test_p, y_test)
+
+    statistical_report = {
+        "cv_comparison": stat_cv_results,
+        "bootstrap_test_ci": bootstrap_results,
+        "calibration": calibration_results,
+        "stack_test_f1": float(test_f1),
+        "xgb_test_f1": float(xgb_test_f1)
+    }
+
+    save_statistical_report(statistical_report)
+
+    print("\nFINAL TEST F1-macro (Stacking):", round(test_f1, 4))
+    print("FINAL TEST F1-macro (XGB):", round(xgb_test_f1, 4))
+
+    # Save artifacts
     joblib.dump({"preprocessor": pre, "model": final_model}, ARTIFACT_MODEL)
     joblib.dump(le, ARTIFACT_ENCODER)
 
@@ -65,10 +102,11 @@ def main():
             "model": "Stacked Ensemble (RF + XGB + ET)",
             "metric": "F1-macro",
             "final_test_f1": float(test_f1),
+            "xgb_test_f1": float(xgb_test_f1),
             "python": platform.python_version()
         }, f, indent=2)
 
-    print("Artifacts saved in:", BASE_PATH)
+    print("Artifacts + Statistical report saved.")
 
 
 if __name__ == "__main__":
