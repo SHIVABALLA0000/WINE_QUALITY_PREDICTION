@@ -1,113 +1,171 @@
-#  Wine Quality Prediction  
+# 🍷 Wine Quality Prediction  
 
-A **production-grade machine learning system** designed with **reliability as the primary business objective**, supported by interpretability, monitoring, and safe inference practices.
+A **production-grade machine learning system** designed with **reliability as the primary objective**, strengthened by **statistical validation, interpretability, monitoring, and safe inference practices**.
 
+---
 
-##  Project Overview
+## 📌 Project Overview  
 
-This project builds an **end-to-end machine learning system** to predict **wine quality** (ordinal multi-class classification) using physicochemical properties of wine.
-- **Reliable predictions**
-- **Unbiased evaluation**
-- **Explainability as a validation tool**
-- **Deployment-ready inference**
-- **Monitoring for post-deployment risk**
+This project builds an **end-to-end ML system** to predict **wine quality (ordinal multi-class classification)** using physicochemical features.
 
+### Key Principles:
+- ✅ Reliable predictions  
+- ✅ Statistically validated model selection  
+- ✅ Explainability as a validation tool  
+- ✅ Deployment-ready inference  
+- ✅ Monitoring for post-deployment risks  
 
-##  Problem Statement
+---
 
-Predict **wine quality scores (ordinal multi-class)** using physicochemical attributes while ensuring:
+## 🎯 Problem Statement  
 
-- Robust generalization
-- Fair performance across rare and majority classes
-- Confidence-aware predictions suitable for real-world usage
+Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
+- Robust generalization  
+- Fair performance across imbalanced classes  
+- Statistical confidence in model comparisons  
+- Confidence-aware predictions for real-world usage  
 
-##  Dataset
+---
+
+## 📊 Dataset  
 
 - **Source:** UCI Wine Quality Dataset  
-- **Variants:** Red & White wines (combined)  
-- **Target:** Wine quality score (ordinal, multi-class)
+- **Variants:** Red + White (combined)  
+- **Target:** Ordinal quality score  
 
+---
 
-##  Modeling Approach
+## 🧠 Modeling Approach  
 
-### Base Learners (Diversity-Driven)
+### 🔹 Base Learners (Diversity-Driven)
+- **Random Forest** – variance reduction  
+- **XGBoost** – bias reduction  
+- **Extra Trees** – decorrelation via randomness  
 
-- **Random Forest** – Bagging for variance reduction  
-- **XGBoost** – Gradient boosting for bias reduction  
-- **Extra Trees** – High randomness for decorrelation  
+### 🔹 Meta-Learner
+- **Logistic Regression**  
+- Trained on base model probabilities  
+- Produces calibrated and interpretable outputs  
 
-### Meta-Learner
+### 🔹 Class Imbalance Handling
+- Class-weighted loss  
+- Macro-based evaluation  
 
-- **Logistic Regression**
-- Trained on base-model class probabilities
-- Produces calibrated and interpretable final predictions
+---
 
-### Class Imbalance Handling
-
-- Class-weighted loss functions  
-- Macro-averaged evaluation metrics  
-
-
-##  Validation Strategy (No Data Leakage)
+## 🧪 Validation Strategy (No Data Leakage)  
 
 - **Nested Cross-Validation**
-  - **Outer CV:** Unbiased generalization estimation
-  - **Inner CV:** Optuna-based Bayesian hyperparameter optimization
+  - Outer CV → unbiased performance estimate  
+  - Inner CV → Optuna hyperparameter tuning  
+
 - **Final Holdout Test Set**
-  - Never accessed during training or tuning
+  - Strictly untouched during training  
 
+---
 
-## Metrics
+## 📈 Evaluation Metrics  
 
 - **Primary:** F1-macro (fairness across classes)  
-- **Secondary:** RMSE (ordinal sensitivity)
+- **Secondary:** RMSE (ordinal sensitivity)  
 
+---
 
-## Interpretability & Model Diagnostics 
+## 📊 Statistical Model Evaluation (NEW 🔥)  
 
-Interpretability is performed **before deployment** to validate model reliability.
+To ensure **rigorous and defensible model selection**, we implemented **statistical testing and uncertainty estimation** (`src/stat_eval.py`):
 
-### Techniques Used
+### 🔹 1. Paired Model Comparison
+- Paired t-test  
+- Wilcoxon signed-rank test  
+- Cohen’s d (effect size)  
 
-- **Permutation Importance**
-  - Global feature relevance sanity checks
-- **Partial Dependence Plots (PDP)**
-  - Domain-aligned behavior validation
-- **SHAP**
-  - Feature-level contribution analysis  
-  - Base-model behavior inspection  
-  - Meta-learner coefficient interpretation  
+👉 Validates whether performance differences are **statistically significant**, not just random.
 
-## Inference & Serving
+---
 
-- **FastAPI** used for inference
-- API returns:
-  - Predicted wine quality class
-  - Full class probability distribution
-  - Confidence score
-- **Confidence thresholding**
-  - Low-confidence predictions are explicitly rejected
+### 🔹 2. Bootstrap Confidence Intervals
+- Resampling-based estimation of metric distribution  
 
-##  User Interface
+Provides:
+- Mean F1-score  
+- 95% Confidence Interval  
+
+👉 Quantifies **uncertainty in model performance**
+
+---
+
+### 🔹 3. Calibration Evaluation
+- Brier Score  
+- Measures probability reliability  
+
+👉 Ensures predicted probabilities are **trustworthy**
+
+---
+
+### 🔹 4. Statistical Reporting
+- Results saved as JSON artifacts  
+- Enables reproducibility & auditability  
+
+---
+
+## 🔍 Interpretability & Diagnostics  
+
+Performed before deployment:
+
+- **Permutation Importance** → global feature sanity  
+- **PDP (Partial Dependence Plots)** → domain validation  
+
+### SHAP:
+- Local + global explanations  
+- Base-model inspection  
+- Meta-learner interpretability  
+
+---
+
+## 🚀 Inference & Serving  
+
+- **FastAPI backend**
+
+Returns:
+- Predicted class  
+- Full probability distribution  
+- Confidence score  
+
+### 🔹 Safe Inference
+- High → Accept  
+- Medium → Warn  
+- Low → Reject  
+
+---
+
+## 💻 User Interface  
 
 - **Streamlit frontend**
-  - Interactive wine feature input
-  - Calls FastAPI inference service
-  - Visualizes predictions, confidence, and class probabilities
 
-Clear distinction between:
+Features:
+- Interactive feature input  
+- Prediction visualization  
+- Confidence score  
+- Class probabilities  
 
--  High-confidence predictions  
--  Medium-confidence warnings  
--  Low-confidence rejections  
+---
 
-## Monitoring & Drift Detection
+## 📉 Monitoring & Drift Detection  
 
-- **Evidently AI** used for offline monitoring
-- Drift detection includes:
-  - Feature-level data drift
-  - Target drift
-- Drift reports generated by comparing:
-  - Training reference data
-  - Simulated production inference data
+- **Evidently AI**
+
+Tracks:
+- Feature drift  
+- Target drift  
+
+Compares:
+- Training data  
+- Simulated production data  
+
+---
+
+## 🧩 Key Engineering Highlight  
+
+> Unlike typical ML projects, this system ensures that **model improvements are statistically validated, not assumed** — making it suitable for **high-stakes, production-grade deployments**.
