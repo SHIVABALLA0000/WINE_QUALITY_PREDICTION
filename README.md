@@ -1,23 +1,23 @@
-# 🍷 Wine Quality Prediction  
+#  Wine Quality Prediction  
 
 A **production-grade machine learning system** designed with **reliability as the primary objective**, strengthened by **statistical validation, interpretability, monitoring, and safe inference practices**.
 
 ---
 
-## 📌 Project Overview  
+##  Project Overview  
 
 This project builds an **end-to-end ML system** to predict **wine quality (ordinal multi-class classification)** using physicochemical features.
 
 ### Key Principles:
-- ✅ Reliable predictions  
-- ✅ Statistically validated model selection  
-- ✅ Explainability as a validation tool  
-- ✅ Deployment-ready inference  
-- ✅ Monitoring for post-deployment risks  
+-  Reliable predictions  
+-  Statistically validated model selection  
+-  Explainability as a validation tool  
+-  Deployment-ready inference  
+-  Monitoring for post-deployment risks  
 
 ---
 
-## 🎯 Problem Statement  
+##  Problem Statement  
 
 Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
@@ -28,7 +28,7 @@ Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
 ---
 
-## 📊 Dataset  
+##  Dataset  
 
 - **Source:** UCI Wine Quality Dataset  
 - **Variants:** Red + White (combined)  
@@ -36,25 +36,25 @@ Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
 ---
 
-## 🧠 Modeling Approach  
+##  Modeling Approach  
 
 ### 🔹 Base Learners (Diversity-Driven)
 - **Random Forest** – variance reduction  
 - **XGBoost** – bias reduction  
 - **Extra Trees** – decorrelation via randomness  
 
-### 🔹 Meta-Learner
+###  Meta-Learner
 - **Logistic Regression**  
 - Trained on base model probabilities  
 - Produces calibrated and interpretable outputs  
 
-### 🔹 Class Imbalance Handling
+###  Class Imbalance Handling
 - Class-weighted loss  
 - Macro-based evaluation  
 
 ---
 
-## 🧪 Validation Strategy (No Data Leakage)  
+##  Validation Strategy (No Data Leakage)  
 
 - **Nested Cross-Validation**
   - Outer CV → unbiased performance estimate  
@@ -65,23 +65,23 @@ Predict **wine quality scores (ordinal multi-class)** while ensuring:
 
 ---
 
-## 📈 Evaluation Metrics  
+##  Evaluation Metrics  
 
 - **Primary:** F1-macro (fairness across classes)  
 - **Secondary:** RMSE (ordinal sensitivity)  
 
 ---
 
-## 📊 Statistical Model Evaluation (NEW 🔥)  
+##  Statistical Model Evaluation  
 
-To ensure **rigorous and defensible model selection**, we implemented **statistical testing and uncertainty estimation** (`src/stat_eval.py`):
+To ensure **rigorous and defensible model selection**, we implemented **statistical testing and uncertainty estimation**:
 
 ### 🔹 1. Paired Model Comparison
 - Paired t-test  
 - Wilcoxon signed-rank test  
 - Cohen’s d (effect size)  
 
-👉 Validates whether performance differences are **statistically significant**, not just random.
+ Validates whether performance differences are **statistically significant**, not just random.
 
 ---
 
@@ -92,7 +92,7 @@ Provides:
 - Mean F1-score  
 - 95% Confidence Interval  
 
-👉 Quantifies **uncertainty in model performance**
+ Quantifies **uncertainty in model performance**
 
 ---
 
@@ -100,17 +100,17 @@ Provides:
 - Brier Score  
 - Measures probability reliability  
 
-👉 Ensures predicted probabilities are **trustworthy**
+ Ensures predicted probabilities are **trustworthy**
 
 ---
 
-### 🔹 4. Statistical Reporting
+###  4. Statistical Reporting
 - Results saved as JSON artifacts  
 - Enables reproducibility & auditability  
 
 ---
 
-## 🔍 Interpretability & Diagnostics  
+##  Interpretability 
 
 Performed before deployment:
 
@@ -124,7 +124,7 @@ Performed before deployment:
 
 ---
 
-## 🚀 Inference & Serving  
+##  Inference & Serving  
 
 - **FastAPI backend**
 
@@ -133,14 +133,14 @@ Returns:
 - Full probability distribution  
 - Confidence score  
 
-### 🔹 Safe Inference
+###  Safe Inference
 - High → Accept  
 - Medium → Warn  
 - Low → Reject  
 
 ---
 
-## 💻 User Interface  
+##  User Interface  
 
 - **Streamlit frontend**
 
@@ -152,7 +152,7 @@ Features:
 
 ---
 
-## 📉 Monitoring & Drift Detection  
+##  Monitoring & Drift Detection  
 
 - **Evidently AI**
 
@@ -166,6 +166,6 @@ Compares:
 
 ---
 
-## 🧩 Key Engineering Highlight  
+##  Key Engineering Highlight  
 
 > Unlike typical ML projects, this system ensures that **model improvements are statistically validated, not assumed** — making it suitable for **high-stakes, production-grade deployments**.
